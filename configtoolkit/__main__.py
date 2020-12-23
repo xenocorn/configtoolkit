@@ -8,6 +8,8 @@ import importlib
 import toml
 from configparser import ConfigParser
 
+DEFAULT_PYTHON_CONFIG_MODULE = "local_config"
+
 
 @dataclass
 class ConfigValue:
@@ -293,5 +295,92 @@ class EnvironConfigProvider(DictConfigProvider):
         or from nested dictionaries or arrays by keys
         typical use: get("key1", "key2", "key3" ... "keyN" )
     """
+
     def __init__(self):
         super().__init__(dict(os.environ))
+
+
+class PyObjectConfigProvider(DictConfigProvider):
+    """
+    Class to getting config from python object fields
+
+    Can work with nested dictionaries, arrays and other objects
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from object
+        or from nested dictionaries, arrays or objects by keys
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+    def __init__(self, pyobject):
+        """
+        Parameters
+        ----------
+        pyobject : any
+            incoming python object
+        """
+        super().__init__({})
+        self.pyobject = pyobject
+
+    def get(self, *args) -> ConfigValue:
+        """
+        get value from data structure by key
+        or from nested dictionaries or arrays by keys
+
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+
+        Parameters
+        ----------
+        *keys : Any
+            some keys
+
+        Returns
+        -------
+        ConfigValue
+            ConfigValue(value, True) where value is founded by keys value
+            or ConfigValue(None, False) if nothing is founded
+        """
+        try:
+            value = self.pyobject
+            for arg in args:
+                if hasattr(value, '__getitem__'):
+                    if arg in value:
+                        value = value[arg]
+                        continue
+                value = getattr(value, arg)
+            return ConfigValue(value, True)
+        except:
+            return ConfigValue(None, False)
+
+
+class PyModuleConfigProvider(PyObjectConfigProvider):
+    """
+    Class to getting config from python module content
+
+    Can work with nested dictionaries, arrays and other objects
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from module
+        or from nested dictionaries, arrays or objects by keys
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+    def __init__(self, module_name: str = DEFAULT_PYTHON_CONFIG_MODULE, ignore_import_errors: bool = False):
+        """
+        ignoring import errors if ignore_import_errors is True
+
+        Parameters
+        ----------
+        module_name : str = DEFAULT_PYTHON_CONFIG_MODULE
+            name of python module to import
+        ignore_import_errors: bool = False
+            flag to ignoring errors while importing
+        """
+        try:
+            module = importlib.import_module(module_name)
+            super(PyModuleConfigProvider, self).__init__(module)
+        except ModuleNotFoundError as me:
+            if not ignore_import_errors:
+                raise me
