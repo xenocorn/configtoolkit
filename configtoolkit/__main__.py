@@ -239,9 +239,10 @@ class DictConfigProvider:
     -------
     get(*keys) -> ConfigValue
         get value from data dict by key
-        or from data dict and nested dictionaries or arrays by keys
+        or nested dictionaries or arrays by keys
         typical use: get("key1", "key2", "key3" ... "keyN" )
     """
+
     def __init__(self, data: dict):
         """
         Parameters
@@ -253,8 +254,8 @@ class DictConfigProvider:
 
     def get(self, *keys) -> ConfigValue:
         """
-        get value from data dict by key
-        or from data dict and nested dictionaries or arrays by keys
+        get value from data structure by key
+        or from nested dictionaries or arrays by keys
 
         typical use: get("key1", "key2", "key3" ... "keyN" )
 
@@ -276,3 +277,21 @@ class DictConfigProvider:
             return ConfigValue(value, True)
         except:
             return ConfigValue(None, False)
+
+
+class EnvironConfigProvider(DictConfigProvider):
+    """
+    Class to getting config from os environment
+
+    Retrieves data by key from a os environment
+    Can work with nested dictionaries and arrays
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from os environment by key
+        or from nested dictionaries or arrays by keys
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+    def __init__(self):
+        super().__init__(dict(os.environ))
