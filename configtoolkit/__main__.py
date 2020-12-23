@@ -26,7 +26,7 @@ class ConfigValue:
     apply_to_value(self, function: Callable, ignore_exceptions: bool = False)
         Applies a function to a stored value
     """
-    value: Any   # value from config provider
+    value: Any  # value from config provider
     exist: bool  # flag indicating the presence of this value in the config
 
     def apply_to_value(self, function: Callable, ignore_exceptions: bool = False):
@@ -114,3 +114,114 @@ def get_config_value(values: list, value_type: type = None, validator: Callable 
             continue
         return value
     raise ImpossibleToGetValue("no matching values")
+
+
+class ArgsConfigProvider:
+    """
+    Class to getting config from command line arguments
+
+    Attributes
+    ----------
+    args : list
+        list of string args
+
+    Methods
+    -------
+    get_value_for_key(key: str) -> ConfigValue
+        Return ConfigValue(value, True) if there is a value related to the key in args
+        or ConfigValue(None, False) else
+    if_key_contains(key: str) -> ConfigValue
+        Return ConfigValue(True, True) if there is a key in args
+        or ConfigValue(None, False) else
+    if_not_key_contains(key: str) -> ConfigValue
+        Return ConfigValue(False, True) if there is not a key in args
+        or ConfigValue(None, False) else
+    is_key_contains(key: str) -> ConfigValue:
+        Return ConfigValue(True, True) if there is a key in args
+        or ConfigValue(False, True) else
+    """
+
+    def __init__(self, args: list):
+        """
+        Parameters
+        ----------
+        args : list
+            list of string args
+        """
+        self.args = args
+
+    def get_value_for_key(self, key: str) -> ConfigValue:
+        """
+        Return ConfigValue(value, True) if there is a value related to the key in args
+        or ConfigValue(None, False) else
+
+        Parameters
+        ----------
+        key : str
+            list of string args
+        """
+        for i in range(len(self.args)):
+            arg = self.args[i]
+            if arg == key:
+                if i < len(self.args) - 1:
+                    return ConfigValue(self.args[i + 1], True)
+                break
+        return ConfigValue(None, False)
+
+    def if_key_contains(self, key: str) -> ConfigValue:
+        """
+        Return ConfigValue(True, True) if there is a key in args
+        or ConfigValue(None, False) else
+
+        Parameters
+        ----------
+        key : str
+            list of string args
+        """
+        for i in range(len(self.args)):
+            arg = self.args[i]
+            if arg == key:
+                return ConfigValue(True, True)
+        return ConfigValue(None, False)
+
+    def if_not_key_contains(self, key: str) -> ConfigValue:
+        """
+        Return ConfigValue(False, True) if there is not a key in args
+        or ConfigValue(None, False) else
+
+        Parameters
+        ----------
+        key : str
+            list of string args
+        """
+        for i in range(len(self.args)):
+            arg = self.args[i]
+            if arg == key:
+                return ConfigValue(None, False)
+        return ConfigValue(False, True)
+
+    def is_key_contains(self, key: str) -> ConfigValue:
+        """
+        Return ConfigValue(True, True) if there is a key in args
+        or ConfigValue(False, True) else
+
+        Parameters
+        ----------
+        key : str
+            list of string args
+        """
+        for i in range(len(self.args)):
+            arg = self.args[i]
+            if arg == key:
+                return ConfigValue(True, True)
+        return ConfigValue(False, True)
+
+
+class SysArgsConfigProvider(ArgsConfigProvider):
+    """
+    Class to getting config from system arguments
+
+    automatically gets the arguments passed to the script
+    """
+    def __init__(self):
+        super(SysArgsConfigProvider, self).__init__(sys.argv)
