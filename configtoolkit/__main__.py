@@ -223,5 +223,56 @@ class SysArgsConfigProvider(ArgsConfigProvider):
 
     automatically gets the arguments passed to the script
     """
+
     def __init__(self):
         super(SysArgsConfigProvider, self).__init__(sys.argv)
+
+
+class DictConfigProvider:
+    """
+    Class to getting config from dictionary
+
+    Retrieves data by key from a dictionary
+    Can work with nested dictionaries and arrays
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from data dict by key
+        or from data dict and nested dictionaries or arrays by keys
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+    def __init__(self, data: dict):
+        """
+        Parameters
+        ----------
+        data : dict
+            incoming dictionary
+        """
+        self.data = data
+
+    def get(self, *keys) -> ConfigValue:
+        """
+        get value from data dict by key
+        or from data dict and nested dictionaries or arrays by keys
+
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+
+        Parameters
+        ----------
+        *keys : Any
+            some keys
+
+        Returns
+        -------
+        ConfigValue
+            ConfigValue(value, True) where value is founded by keys value
+            or ConfigValue(None, False) if nothing is founded
+        """
+        try:
+            value = self.data
+            for arg in keys:
+                value = value[arg]
+            return ConfigValue(value, True)
+        except:
+            return ConfigValue(None, False)
