@@ -9,6 +9,7 @@ import toml
 from configparser import ConfigParser
 
 DEFAULT_PYTHON_CONFIG_MODULE = "local_config"
+DEFAULT_JSON_CONFIG_FILE = "local_config.json"
 
 
 @dataclass
@@ -313,6 +314,7 @@ class PyObjectConfigProvider(DictConfigProvider):
         or from nested dictionaries, arrays or objects by keys
         typical use: get("key1", "key2", "key3" ... "keyN" )
     """
+
     def __init__(self, pyobject):
         """
         Parameters
@@ -367,10 +369,9 @@ class PyModuleConfigProvider(PyObjectConfigProvider):
         or from nested dictionaries, arrays or objects by keys
         typical use: get("key1", "key2", "key3" ... "keyN" )
     """
+
     def __init__(self, module_name: str = DEFAULT_PYTHON_CONFIG_MODULE, ignore_import_errors: bool = False):
         """
-        ignoring import errors if ignore_import_errors is True
-
         Parameters
         ----------
         module_name : str = DEFAULT_PYTHON_CONFIG_MODULE
@@ -384,3 +385,59 @@ class PyModuleConfigProvider(PyObjectConfigProvider):
         except ModuleNotFoundError as me:
             if not ignore_import_errors:
                 raise me
+
+
+class JSONConfigProvider(DictConfigProvider):
+    """
+    Class to getting config from json string
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from json
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+    def __init__(self, json_str: str, ignore_decode_error: bool = False):
+        """
+        Parameters
+        ----------
+        json_str : str
+            json string
+        ignore_decode_error: bool = False
+            flag to ignoring errors while decoding json
+        """
+        super().__init__({})
+        try:
+            self.data = json.loads(json_str)
+        except json.decoder.JSONDecodeError as de:
+            if not ignore_decode_error:
+                raise de
+
+
+class JSONFileConfigProvider(JSONConfigProvider):
+    """
+    Class to getting config from json file
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from json
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+    def __init__(self, file_name: str = DEFAULT_JSON_CONFIG_FILE, ignore_decode_error: bool = False,
+                 ignore_file_reading_error: bool = False):
+        """
+        Parameters
+        ----------
+        file_name : str = DEFAULT_JSON_CONFIG_FILE
+            json file name
+        ignore_decode_error: bool = False
+            flag to ignoring errors while decoding json
+        """
+        try:
+            with open(file_name, 'r') as file:
+                self.data = json.load(file, ignore_decode_error=ignore_decode_error)
+                super().__init__(file.read())
+        except FileNotFoundError as fe:
+            if not ignore_file_reading_error:
+                raise fe
