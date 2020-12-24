@@ -6,10 +6,11 @@ import os
 import yaml
 import importlib
 import toml
-from configparser import ConfigParser
 
 DEFAULT_PYTHON_CONFIG_MODULE = "local_config"
 DEFAULT_JSON_CONFIG_FILE = "local_config.json"
+DEFAULT_YAML_CONFIG_FILE = "local_config.yaml"
+DEFAULT_TOML_CONFIG_FILE = "local_config.toml"
 
 
 @dataclass
@@ -397,6 +398,7 @@ class JSONConfigProvider(DictConfigProvider):
         get value from json
         typical use: get("key1", "key2", "key3" ... "keyN" )
     """
+
     def __init__(self, json_str: str, ignore_decode_error: bool = False):
         """
         Parameters
@@ -424,6 +426,7 @@ class JSONFileConfigProvider(JSONConfigProvider):
         get value from json
         typical use: get("key1", "key2", "key3" ... "keyN" )
     """
+
     def __init__(self, file_name: str = DEFAULT_JSON_CONFIG_FILE, ignore_decode_error: bool = False,
                  ignore_file_reading_error: bool = False):
         """
@@ -433,11 +436,123 @@ class JSONFileConfigProvider(JSONConfigProvider):
             json file name
         ignore_decode_error: bool = False
             flag to ignoring errors while decoding json
+        ignore_file_reading_error: bool = False
+            flag to ignoring errors while reading file
         """
         try:
             with open(file_name, 'r') as file:
                 self.data = json.load(file, ignore_decode_error=ignore_decode_error)
                 super().__init__(file.read())
+        except FileNotFoundError as fe:
+            super().__init__("{}")
+            if not ignore_file_reading_error:
+                raise fe
+
+
+class YAMLConfigProvider(DictConfigProvider):
+    """
+    Class to getting config from yaml string
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from yaml
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+
+    def __init__(self, yaml_str: str):
+        """
+        Parameters
+        ----------
+        yaml_str : str
+            yaml config string
+        """
+        super().__init__(yaml.full_load(yaml_str))
+
+
+class YAMLFileConfigProvider(YAMLConfigProvider):
+    """
+    Class to getting config from yaml file
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from yaml
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+
+    def __init__(self, file_name: str = DEFAULT_YAML_CONFIG_FILE, ignore_file_reading_error: bool = False):
+        """
+        Parameters
+        ----------
+        file_name: str = DEFAULT_YAML_CONFIG_FILE
+            yaml config file name
+        ignore_file_reading_error: bool = False
+            flag to ignoring errors while reading file
+        """
+        try:
+            with open(file_name, 'r') as file:
+                super().__init__(file.read())
+        except FileNotFoundError as fe:
+            super().__init__("")
+            if not ignore_file_reading_error:
+                raise fe
+
+
+class TOMLConfigProvider(DictConfigProvider):
+    """
+    Class to getting config from toml string
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from toml
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+
+    def __init__(self, toml_str: str, ignore_decode_error: bool = False):
+        """
+        Parameters
+        ----------
+        toml_str : str
+            yaml config string
+        ignore_decode_error: bool = False
+            flag to ignoring errors while decoding json
+        """
+        try:
+            super().__init__(toml.loads(toml_str))
+        except toml.decoder.TomlDecodeError as te:
+            if not ignore_decode_error:
+                raise te
+
+
+class TOMLFileProvider(TOMLConfigProvider):
+    """
+    Class to getting config from toml file
+
+    Methods
+    -------
+    get(*keys) -> ConfigValue
+        get value from toml
+        typical use: get("key1", "key2", "key3" ... "keyN" )
+    """
+
+    def __init__(self, file_name: str = DEFAULT_TOML_CONFIG_FILE, ignore_decode_error: bool = False,
+                 ignore_file_reading_error: bool = False):
+        """
+        Parameters
+        ----------
+        file_name: str = DEFAULT_YAML_CONFIG_FILE
+            yaml config file name
+        ignore_decode_error: bool = False
+            flag to ignoring errors while decoding json
+        ignore_file_reading_error: bool = False
+            flag to ignoring errors while reading file
+        """
+        self.data = {}
+        try:
+            with open(file_name, 'r') as file:
+                super().__init__(file.read(), ignore_decode_error=ignore_decode_error)
         except FileNotFoundError as fe:
             if not ignore_file_reading_error:
                 raise fe
