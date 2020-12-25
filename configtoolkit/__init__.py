@@ -31,4 +31,4 @@ from .__main__ import YAMLConfigProvider
 from .__main__ import YAMLFileConfigProvider
 # [toml providers]
 from .__main__ import TOMLConfigProvider
-from .__main__ import TOMLFileProvider
+from .__main__ import TOMLFileConfigProvider
