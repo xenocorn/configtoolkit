@@ -24,6 +24,8 @@ class ConfigValue:
         value from config provider
     exist : bool
         flag indicating the presence of this value in the config
+    source : Any
+        source of value
 
     Methods
     -------
@@ -32,6 +34,7 @@ class ConfigValue:
     """
     value: Any  # value from config provider
     exist: bool  # flag indicating the presence of this value in the config
+    source: Any  # source of value
 
     def apply_to_value(self, function: Callable, ignore_exceptions: bool = False):
         """
@@ -73,8 +76,8 @@ def not_none_config_value(value):
     value : Any
     """
     if value is None:
-        return ConfigValue(None, False)
-    return ConfigValue(value, True)
+        return ConfigValue(None, False, None)
+    return ConfigValue(value, True, None)
 
 
 def get_config_value(values: list, value_type: type = None, validator: Callable = lambda value: True,
@@ -121,7 +124,7 @@ def get_config_value(values: list, value_type: type = None, validator: Callable 
         if not validator(value):
             continue
         if return_source_value:
-            return value, value_provider
+            return value, value_provider.source
         return value
     raise ImpossibleToGetValue("no matching values")
 
@@ -174,9 +177,9 @@ class ArgsConfigProvider:
             arg = self.args[i]
             if arg == key:
                 if i < len(self.args) - 1:
-                    return ConfigValue(self.args[i + 1], True)
+                    return ConfigValue(self.args[i + 1], True, self)
                 break
-        return ConfigValue(None, False)
+        return ConfigValue(None, False, self)
 
     def if_key_contains(self, key: str) -> ConfigValue:
         """
@@ -191,8 +194,8 @@ class ArgsConfigProvider:
         for i in range(len(self.args)):
             arg = self.args[i]
             if arg == key:
-                return ConfigValue(True, True)
-        return ConfigValue(None, False)
+                return ConfigValue(True, True, self)
+        return ConfigValue(None, False, self)
 
     def if_not_key_contains(self, key: str) -> ConfigValue:
         """
@@ -207,8 +210,8 @@ class ArgsConfigProvider:
         for i in range(len(self.args)):
             arg = self.args[i]
             if arg == key:
-                return ConfigValue(None, False)
-        return ConfigValue(False, True)
+                return ConfigValue(None, False, self)
+        return ConfigValue(False, True, self)
 
     def is_key_contains(self, key: str) -> ConfigValue:
         """
@@ -223,8 +226,8 @@ class ArgsConfigProvider:
         for i in range(len(self.args)):
             arg = self.args[i]
             if arg == key:
-                return ConfigValue(True, True)
-        return ConfigValue(False, True)
+                return ConfigValue(True, True, self)
+        return ConfigValue(False, True, self)
 
 
 class SysArgsConfigProvider(ArgsConfigProvider):
@@ -284,9 +287,9 @@ class DictConfigProvider:
             value = self.data
             for arg in keys:
                 value = value[arg]
-            return ConfigValue(value, True)
+            return ConfigValue(value, True, self)
         except:
-            return ConfigValue(None, False)
+            return ConfigValue(None, False, self)
 
 
 class EnvironConfigProvider(DictConfigProvider):
@@ -358,9 +361,9 @@ class PyObjectConfigProvider(DictConfigProvider):
                         value = value[arg]
                         continue
                 value = getattr(value, arg)
-            return ConfigValue(value, True)
+            return ConfigValue(value, True, self)
         except:
-            return ConfigValue(None, False)
+            return ConfigValue(None, False, self)
 
 
 class PyModuleConfigProvider(PyObjectConfigProvider):
