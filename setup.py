@@ -1,9 +1,12 @@
 from setuptools import setup, find_packages
-from configtoolkit import __version__ as version
+import re
 
 long_description = open("README.md", "r", encoding="utf8").read()
 
 requirements = open("requirements.txt", "r", encoding="utf8").read().split("\n")
+
+with open("configtoolkit/__init__.py", "r", encoding="utf8") as file:
+    version = re.search(r'__version__ = "(.*?)"', file.read()).group(1)
 
 setup(
     name="configtoolkit",

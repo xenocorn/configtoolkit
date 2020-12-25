@@ -34,4 +34,4 @@ from .__main__ import TOMLConfigProvider
 from .__main__ import TOMLFileConfigProvider
 
 # [meta]
-__version__ = '0.1.1'
+__version__ = "0.1.2"
