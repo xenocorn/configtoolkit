@@ -77,7 +77,8 @@ def not_none_config_value(value):
     return ConfigValue(value, True)
 
 
-def get_config_value(values: list, value_type: type = None, validator: Callable = lambda value: True, **kwargs):
+def get_config_value(values: list, value_type: type = None, validator: Callable = lambda value: True,
+                     return_source_value: bool = False, **kwargs):
     """
     Select first valid value from list of incoming values
 
@@ -98,6 +99,8 @@ def get_config_value(values: list, value_type: type = None, validator: Callable 
         the function to which every value is passed to be checked
     default : Any (option)
         add to the end of values
+    return_source_value : bool = False
+        if enable function will return not only the value but also its provider object
 
     Raises
     ------
@@ -106,7 +109,8 @@ def get_config_value(values: list, value_type: type = None, validator: Callable 
     """
     if "default" in kwargs:
         values.append(kwargs["default"])
-    for value in values:
+    for value_provider in values:
+        value = value_provider
         if isinstance(value, ConfigValue):
             if not value.exist:
                 continue
@@ -116,6 +120,8 @@ def get_config_value(values: list, value_type: type = None, validator: Callable 
                 continue
         if not validator(value):
             continue
+        if return_source_value:
+            return value, value_provider
         return value
     raise ImpossibleToGetValue("no matching values")
 
@@ -526,7 +532,7 @@ class TOMLConfigProvider(DictConfigProvider):
                 raise te
 
 
-class TOMLFileProvider(TOMLConfigProvider):
+class TOMLFileConfigProvider(TOMLConfigProvider):
     """
     Class to getting config from toml file
 
