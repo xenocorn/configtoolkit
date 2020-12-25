@@ -74,7 +74,7 @@ Another configuration library
 Если результат был получен из константного значения, 
 то в качестве источника возвращается Null
 
-####- Функция not_none_config_value
+#### - Функция not_none_config_value
 Если вы передаете в параметр **values** функции **get_config_value** 
 неконстантное конфигурационное значение, полученное без использования 
 классов провайдеров, рассмотренных ниже, вам может потребоваться, 
@@ -85,7 +85,7 @@ Another configuration library
 если оно не Null или False, иначе возвращая пустой объект **ConfigValue** 
 с флагом exist установленным в False
 
-####- Класс ConfigValue
+#### - Класс ConfigValue
 Данный класс является оберткой для значений передаваемых в **get_config_value**, 
 содержащий также флаг exist, указывающий на существование этого значения в 
 источнике из которого получена конфигурация, 
@@ -94,7 +94,7 @@ Another configuration library
 **Configtoolkit** предоставляет классы-провайдеры для извлечения конфигураций 
 из различных источников:
 
-####- Классы ArgsConfigProvider и SysArgsConfigProvider
+#### - Классы ArgsConfigProvider и SysArgsConfigProvider
 Служат для импортирования конфигурации из аргументов командной строки  
 
 Класс **ArgsConfigProvider** принимает эти аргументы в конструкторе в виде списка  
@@ -120,7 +120,7 @@ Another configuration library
 Принимает имя ключа в виде строки и возвращает 
 значение Tru или False, в зависимости от наличия ключа, обернутое в **ConfigValue**
 
-####- Класс DictConfigProvider
+#### - Класс DictConfigProvider
 Служит для импортирования конфигурации из словаря python,
 а также вложенных в него словарей или списков
 
@@ -133,12 +133,12 @@ Another configuration library
 данные по ключу  
 Для получения значения из вложенных структур данных может передаваться множество ключей
 
-####- Класс EnvironConfigProvider
+#### - Класс EnvironConfigProvider
 Служит для импортирования конфигурации из переменных окружения  
 
 Наследуется от **DictConfigProvider**
 
-####- Классы PyObjectConfigProvider и PyModuleConfigProvider
+#### - Классы PyObjectConfigProvider и PyModuleConfigProvider
 Служат для импортирования конфигурации из объектов python  
 В отличие от **DictConfigProvider** работают не только 
 со словарями и массивами, но и с любыми другими объектами, обращаясь к их полям
@@ -149,7 +149,7 @@ Another configuration library
 
 Наследуются от **DictConfigProvider**
 
-####- Классы JSONConfigProvider и JSONFileConfigProvider
+#### - Классы JSONConfigProvider и JSONFileConfigProvider
 Служат для импортирования конфигурации из формата json
 
 Класс **JSONConfigProvider** получает в конструкторе строку с данными в json формате  
@@ -157,7 +157,7 @@ Another configuration library
 
 Наследуются от **DictConfigProvider**
 
-####- Классы YAMLConfigProvider и YAMLFileConfigProvider
+#### - Классы YAMLConfigProvider и YAMLFileConfigProvider
 Служат для импортирования конфигурации из формата yaml
 
 Класс **YAMLConfigProvider** получает в конструкторе строку с данными в yaml формате  
@@ -165,7 +165,7 @@ Another configuration library
 
 Наследуются от **DictConfigProvider**
 
-####- Классы TOMLConfigProvider и TOMLFileConfigProvider
+#### - Классы TOMLConfigProvider и TOMLFileConfigProvider
 Служат для импортирования конфигурации из формата toml
 
 Класс **TOMLConfigProvider** получает в конструкторе строку с данными в toml формате  
