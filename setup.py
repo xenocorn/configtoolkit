@@ -1,6 +1,21 @@
 from setuptools import setup, find_packages
+import shutil
+import glob
 import re
 
+# [garbage collecting]
+for f in glob.glob("*.egg-info"):
+    shutil.rmtree(f)
+try:
+    shutil.rmtree("dist")
+except IOError:
+    pass
+try:
+    shutil.rmtree("build")
+except IOError:
+    pass
+
+# [import values]
 long_description = open("README.md", "r", encoding="utf8").read()
 
 requirements = open("requirements.txt", "r", encoding="utf8").read().split("\n")
